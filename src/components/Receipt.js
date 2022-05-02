@@ -23,7 +23,7 @@ class Receipt extends React.Component {
                             <Col sm={1} style={{ paddingRight: '1%' }}></Col>
                             <Col sm={1} style={{ paddingRight: '1%' }}>By Unit?</Col>
                             <Col sm={1} style={{ paddingRight: '1%' }}>Quantity</Col>
-                            <Col sm={2} style={{ paddingRight: '1%' }}>Name</Col>
+                            <Col sm={2} style={{ paddingRight: '1%' }}>Item Name</Col>
                             <Col sm={1} style={{ paddingRight: '1%' }}>Unit Price</Col>
                             <Col sm={1} style={{ paddingRight: '1%' }}>Total Price</Col>
                             <Col sm={5} style={{ paddingRight: '1%' }}>People to Split</Col>

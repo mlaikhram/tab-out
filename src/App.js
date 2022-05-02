@@ -16,14 +16,37 @@ class App extends React.Component {
       window.location.href = window.location.href.substring(0, window.location.href.indexOf('?'));
     }
 
+    const color1 = Math.floor(Math.random()*16777215).toString(16);
+    const color2 = Math.floor(Math.random()*16777215).toString(16);
+
     this.state = {
       modalVisibility: {
         info: false,
         split: false
       },
-      payerList: [],
+      payerList: [
+        {
+          id: Date.now(),
+          name: "",
+          color: "#" + "0".repeat(6 - color1.length) + color1
+        },
+        {
+          id: Date.now() + 1,
+          name: "",
+          color: "#" + "0".repeat(6 - color2.length) + color2
+        }
+      ],
       receipt: {
-        items: [],
+        items: [
+            {
+              name: '',
+              quantity: 1,
+              isPerItem: false,
+              perItemCost: 0,
+              totalCost: 0,
+              payerIds: []
+          }
+        ],
         total: 0
       },
       breakdown: [
@@ -76,7 +99,7 @@ class App extends React.Component {
   }
 
   handlePayerDelete(index) {
-    if (this.state.payerList.length > 1) {
+    if (this.state.payerList.length > 2) {
         const newPayerList = this.state.payerList.filter((_, i) => i !== index);
         this.setState((state) => {
             state.payerList = newPayerList;
@@ -195,7 +218,7 @@ class App extends React.Component {
                 <Row style={{ paddingTop: '40px' }}>
                     <Col sm={2}>
                       <PayerList 
-                        payerList={this.state.payerList} minPayerCount={1}
+                        payerList={this.state.payerList} minPayerCount={2}
                         onPayerNameChanged={(e, index) => this.handlePayerNameChanged(e, index)} 
                         onPayerColorChanged={(e, index) => this.handlePayerColorChanged(e, index)} 
                         onPayerDelete={(index) => this.handlePayerDelete(index)}
