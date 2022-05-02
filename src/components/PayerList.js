@@ -5,10 +5,6 @@ import { FaPlus } from 'react-icons/fa';
 
 class PayerList extends React.Component {
 
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         return (
             <>

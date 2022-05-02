@@ -1,6 +1,6 @@
 import './App.css';
 import React from 'react';
-import { Row, Col, Button, Collapse, Navbar, NavbarBrand, Nav, NavItem, NavLink, NavbarText, Modal, ModalBody, UncontrolledDropdown, NavbarToggler, DropdownItem, DropdownToggle, DropdownMenu, ModalHeader, ModalFooter, ListGroup, ListGroupItem } from 'reactstrap';
+import { Row, Col, Button, Collapse, Navbar, NavbarBrand, Nav, NavItem, NavLink, NavbarText, Modal, ModalBody, ModalHeader, ModalFooter, ListGroup, ListGroupItem } from 'reactstrap';
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import PayerList from './components/PayerList';
@@ -86,10 +86,10 @@ class App extends React.Component {
   }
 
   handleItemValueChanged(e, key, index) {
-    const newValue = key == 'isPerItem' ? e.target.checked : e.target.value;
+    const newValue = key === 'isPerItem' ? e.target.checked : e.target.value;
 
     this.setState((state) => {
-      state.receipt.items[index][key] = (key == 'name' || key == 'isPerItem') ? newValue : parseFloat(newValue);
+      state.receipt.items[index][key] = (key === 'name' || key === 'isPerItem') ? newValue : parseFloat(newValue);
         return state;
     });
   }

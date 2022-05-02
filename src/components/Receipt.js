@@ -5,10 +5,6 @@ import ReceiptItem from './ReceiptItem';
 
 class Receipt extends React.Component {
 
-    constructor(props) {
-        super(props);
-    }
-
     calculateSubtotal() {
         return this.props.receipt.items.reduce((prev, current) => {
             return prev + (current.isPerItem ? (current.perItemCost * current.quantity) : current.totalCost);

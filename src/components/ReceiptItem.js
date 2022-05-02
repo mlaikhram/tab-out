@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Input, Label, ListGroupItem, Button, ListGroup } from 'reactstrap';
+import { Row, Col, Input, ListGroupItem, Button, ListGroup } from 'reactstrap';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { useDrop } from 'react-dnd';
 import PayerIcon from './PayerIcon';
