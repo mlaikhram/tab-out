@@ -1,8 +1,12 @@
 import './App.css';
 import React from 'react';
-import { Row, Col, Button, Collapse, Navbar, NavbarBrand, Nav, NavItem, NavLink, NavbarText, Modal, ModalBody, UncontrolledDropdown, NavbarToggler, DropdownItem, DropdownToggle, DropdownMenu } from 'reactstrap';
+import { Row, Col, Button, Collapse, Navbar, NavbarBrand, Nav, NavItem, NavLink, NavbarText, Modal, ModalBody, UncontrolledDropdown, NavbarToggler, DropdownItem, DropdownToggle, DropdownMenu, ModalHeader, ModalFooter, ListGroup, ListGroupItem } from 'reactstrap';
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import PayerList from './components/PayerList';
 import Receipt from './components/Receipt';
+
+
 
 class App extends React.Component {
   constructor() {
@@ -14,55 +18,22 @@ class App extends React.Component {
 
     this.state = {
       modalVisibility: {
-        info: false
+        info: false,
+        split: false
       },
-      payerList: [
-        {
-          id: Date.now(),
-          name: "Me",
-          color: "#" + Math.floor(Math.random()*16777215).toString(16)
-        },
-        {
-          id: Date.now() + 1,
-          name: "Me2",
-          color: "#" + Math.floor(Math.random()*16777215).toString(16)
-        }
-      ],
+      payerList: [],
       receipt: {
-        items: [
-          {
-            name: '',
-            quantity: 1,
-            isPerItem: false,
-            perItemCost: 0,
-            totalCost: 100.25,
-            payerIds: []
-          },
-          {
-            name: '',
-            quantity: 2,
-            isPerItem: false,
-            perItemCost: 0,
-            totalCost: 100.25,
-            payerIds: []
-          }
-        ],
+        items: [],
         total: 0
       },
       breakdown: [
         {
-          payerId: 0,
-          total: 0
+          id: 0,
+          name: 'Test Person',
+          total: 100.25
         }
       ]
     };
-  }
-
-  componentDidMount() {
-    this.setState((state) => {
-      state.receipt.items[0].payerIds = [state.payerList[0].id, state.payerList[1].id];
-      return state;
-    });
   }
 
   handleModalToggle(modalName) {
@@ -92,10 +63,11 @@ class App extends React.Component {
   }
 
   handlePayerAdd() {
+    const color = Math.floor(Math.random()*16777215).toString(16)
     const newPayerList = this.state.payerList.concat({
       id: Date.now(),
       name: "",
-      color: "#" + Math.floor(Math.random()*16777215).toString(16)
+      color: "#" + "0".repeat(6 - color.length) + color
     });
     this.setState((state) => {
         state.payerList = newPayerList;
@@ -117,7 +89,7 @@ class App extends React.Component {
     const newValue = key == 'isPerItem' ? e.target.checked : e.target.value;
 
     this.setState((state) => {
-      state.receipt.items[index][key] = newValue;
+      state.receipt.items[index][key] = (key == 'name' || key == 'isPerItem') ? newValue : parseFloat(newValue);
         return state;
     });
   }
@@ -146,9 +118,67 @@ class App extends React.Component {
         });
     }
   }
+  handleTotalChange(e) {
+    const newTotal = e.target.value;
+
+    this.setState((state) => {
+        state.receipt.total = parseFloat(newTotal);
+        return state;
+    });
+  }
 
   handleSplitReceipt() {
+    console.log('splitting...');
+    let peopleSubTotals = {};
+    let subtotal = 0;
+    console.log(this.state.payerList);
+    this.state.payerList.forEach((payer) => {
+      console.log(payer.id);
+      peopleSubTotals[payer.id] = {
+        name: payer.name,
+        subtotal: 0
+      };
+      console.log(peopleSubTotals);
+    });
+    console.log(peopleSubTotals);
+    this.state.receipt.items.forEach((item) => {
+      const itemTotal = (item.isPerItem ? (item.perItemCost * item.quantity) : (item.totalCost));
+      item.payerIds.forEach((payerId) => {
+        peopleSubTotals[payerId].subtotal += itemTotal / item.payerIds.length;
+      });
+      subtotal += itemTotal;
+    });
+    let excess = this.state.receipt.total - subtotal;
+    console.log(this.state.receipt.total);
+    this.setState((state) => {
+      state.breakdown = state.payerList.map((payer) => {
+        console.log(payer.id + " sub: " + peopleSubTotals[payer.id].subtotal + " excess: " + excess + " sub: " + subtotal + " total: " + state.receipt.total);
+        return {
+          id: payer.id,
+          name: payer.name,
+          total: (peopleSubTotals[payer.id].subtotal + excess * (peopleSubTotals[payer.id].subtotal / subtotal)).toFixed(2)
+        };
+      })
+      state.modalVisibility.split = true;
+      return state;
+    });
+  }
 
+  handleDrop(item, monitor, index) {
+    const newPayerIds = this.state.receipt.items[index].payerIds.concat(item.id);
+    this.setState((state) => {
+      state.receipt.items[index].payerIds = newPayerIds;
+      return state;
+    });
+  }
+
+  handleRemovePayerFromItem(itemIndex, payerIndex) {
+    console.log('removing ' + payerIndex + ' from ' + itemIndex);
+    const newPayerIds = this.state.receipt.items[itemIndex].payerIds.filter((_, i) => i !== payerIndex);
+    this.setState((state) => {
+      state.receipt.items[itemIndex].payerIds = newPayerIds;
+      return state;
+    });
   }
 
   render() {
@@ -169,7 +199,8 @@ class App extends React.Component {
                     <NavbarText>Made by Matthew Laikhram</NavbarText>
                 </Collapse>
             </Navbar>
-            <div className="container-fluid">
+            <DndProvider backend={HTML5Backend}>
+              <div className="container-fluid">
                 <Row style={{ paddingTop: '40px' }}>
                     <Col sm={2}>
                       <PayerList 
@@ -188,6 +219,9 @@ class App extends React.Component {
                         onItemDelete={(index) => this.handleItemDelete(index)}
                         onItemAdd={() => this.handleItemAdd()}
                         onSplitReceipt={() => this.handleSplitReceipt()}
+                        onTotalChange={(e) => this.handleTotalChange(e)}
+                        onDrop={(item, monitor, index) => this.handleDrop(item, monitor, index)}
+                        onPayerClick={(itemIndex, payerIndex) => this.handleRemovePayerFromItem(itemIndex, payerIndex)}
                         />
                     </Col>
                 </Row>
@@ -203,10 +237,34 @@ class App extends React.Component {
                         <p>
                             Drag
                         </p>
-
                     </ModalBody>
                 </Modal>
-            </div>
+                <Modal isOpen={this.state.modalVisibility.split} toggle={() => this.handleModalToggle('split')}>
+                    <ModalHeader>
+                      Split
+                    </ModalHeader>
+                    <ModalBody>
+                      <ListGroup flush>
+                        {this.state.breakdown.map((payer) => (
+                        <ListGroupItem key={payer.id}>
+                          <Row>
+                            <Col sm={8}>
+                              {payer.name}
+                            </Col>
+                            <Col sm={4} style={{textAlign: 'right'}}>
+                              {payer.total}
+                            </Col>
+                          </Row>
+                        </ListGroupItem>
+                        ))}
+                      </ListGroup>
+                    </ModalBody>
+                    <ModalFooter>
+                      <Button color="danger" onClick={() => this.handleModalToggle('split')}>Close</Button>
+                    </ModalFooter>
+                </Modal>
+              </div>
+            </DndProvider>
         </div>
     );
   }
