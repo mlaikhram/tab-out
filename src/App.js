@@ -128,19 +128,14 @@ class App extends React.Component {
   }
 
   handleSplitReceipt() {
-    console.log('splitting...');
     let peopleSubTotals = {};
     let subtotal = 0;
-    console.log(this.state.payerList);
     this.state.payerList.forEach((payer) => {
-      console.log(payer.id);
       peopleSubTotals[payer.id] = {
         name: payer.name,
         subtotal: 0
       };
-      console.log(peopleSubTotals);
     });
-    console.log(peopleSubTotals);
     this.state.receipt.items.forEach((item) => {
       const itemTotal = (item.isPerItem ? (item.perItemCost * item.quantity) : (item.totalCost));
       item.payerIds.forEach((payerId) => {
@@ -149,10 +144,8 @@ class App extends React.Component {
       subtotal += itemTotal;
     });
     let excess = this.state.receipt.total - subtotal;
-    console.log(this.state.receipt.total);
     this.setState((state) => {
       state.breakdown = state.payerList.map((payer) => {
-        console.log(payer.id + " sub: " + peopleSubTotals[payer.id].subtotal + " excess: " + excess + " sub: " + subtotal + " total: " + state.receipt.total);
         return {
           id: payer.id,
           name: payer.name,
@@ -173,7 +166,6 @@ class App extends React.Component {
   }
 
   handleRemovePayerFromItem(itemIndex, payerIndex) {
-    console.log('removing ' + payerIndex + ' from ' + itemIndex);
     const newPayerIds = this.state.receipt.items[itemIndex].payerIds.filter((_, i) => i !== payerIndex);
     this.setState((state) => {
       state.receipt.items[itemIndex].payerIds = newPayerIds;
@@ -182,7 +174,6 @@ class App extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     return (
         <div className="App">
             <Navbar color="dark" dark expand="md">
