@@ -247,10 +247,6 @@ class App extends React.Component {
                             Once you fill in all of the items and assign one or more people to each, the app will automatically determine how much each person owes,
                             including tax and tip!
                         </p>
-                        <h5>Tips</h5>
-                        <p>
-                            Drag
-                        </p>
                     </ModalBody>
                 </Modal>
                 <Modal isOpen={this.state.modalVisibility.split} toggle={() => this.handleModalToggle('split')}>
